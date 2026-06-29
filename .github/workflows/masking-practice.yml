@@ -1,0 +1,30 @@
+name: Secret Masking Practice
+
+on:
+  workflow_dispatch:
+
+jobs:
+  masking-demo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Demonstrate automatic masking of defined secrets
+        env:
+          API_KEY: ${{ secrets.TEST_API_KEY }}
+        run: |
+          echo "This value is automatically masked: $API_KEY"
+          echo "GitHub replaces it with *** in logs"
+
+      - name: Demonstrate manual masking of computed values
+        run: |
+          COMPUTED_TOKEN="runtime-generated-sensitive-value-abc123"
+          echo "::add-mask::$COMPUTED_TOKEN"
+          echo "This computed token is now masked: $COMPUTED_TOKEN"
+          echo "Any subsequent step that prints this value will also mask it"
+
+      - name: Show that unmasked sensitive data is dangerous
+        run: |
+          echo "WARNING - this is what NOT to do:"
+          echo "Never do: echo ${{ secrets.TEST_API_KEY }}"
+          echo "Always use environment variables instead"
+          echo "Command line args are visible in process listings (ps aux)"
